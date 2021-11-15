@@ -4,19 +4,18 @@ A light-weight, fast and scalable api solution for Django. Uses a comfy set of f
 
 Don't disregard Caterpillar because its small; It's scrapy to, with built in type conversion, session management, dead simple file handling, self documenting reports and error management. Caterpillar makes writing APIs simple so you can focus on functionality, not CRUD.
 
-# Install Caterpillar
+# Caterpillar hello world
 
 ```bash
 pip3 install caterpillar-api
 ```
 
-## Define your API
+### Define your API
 
 Inside your django project, create a function with a *@Cocoon* wrapper that defines your paramaters. Add your params to your func.
 
 ```python
 from caterpillar import Cocoon, pillar
-
 
 @Cocoon( post_req=(
             ('a', int),
@@ -26,7 +25,7 @@ def add( request, a, b ):
     return pillar.resp( request, { "c": a + b })
 ```
 
-## Add your endpoint to Django
+### Add your endpoint to Django
 
 Inside url.py.
 
@@ -37,7 +36,7 @@ urlpatterns = [
 ]
 ```
 
-## Call your API using curl
+### Call your API using curl
 
 Now using curl, you can post data to the API, and get a JSON response.
 
