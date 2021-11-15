@@ -12,7 +12,7 @@ pip3 install caterpillar-api
 
 ## Define your API
 
-Inside your django project, create a function with a ~@Cocoon~ wrapper that defines your paramaters. Add your params to your func.
+Inside your django project, create a function with a *@Cocoon* wrapper that defines your paramaters. Add your params to your func.
 
 ```python
 from caterpillar import Cocoon, pillar
@@ -231,15 +231,128 @@ def upload_logo( request, usr, logo ):
     return pillar.resp( request, {})
 ```
 
-## Need to call and endpoint directly?
+## Need to call an endpoint directly?
+Not a problem. Caterpillar will happy to get out of your way. Passing None for the request parameter will tell Caterpillar you are using the functions directly. Instead of a HttpResponse, you'll get the dict of the response.
+
+```python
+@Cocoon(
+    post_req=(
+            ('a', int),
+            ('b', int),
+    )
+)
+def add( request, a, b ):
+    return pillar.resp( request, { "c": a + b })
+
+add( None, 4, 3) # Returns { "c": 12 }
+add( None, "cat", "fish") # Returns { "c": "catfish" } # Type checking isn't done when calling directly
+```
 
 # @Cocoon
 
-Cocoon is a function decorator that defines endpoint arguments and data types.
+Cocoon is a function decorator that defines endpoint arguments and data types. 
 
+* **sess_opt** - Optional session parameters. Array/Tuple of tuples. ('name', type) or ('name', type, default)
+* **sess_req** - Required session parameters. Array/Tuple of tuples. ('name', type).
+* **post_opt** - Optional POST parameters. Array/Tuple of tuples. ('name', type) or ('name', type, default).
+* **post_req** - Required POST parameters. Array/Tuple of tuples. ('name', type).
+* **get_opt** - Optional GET parameters. Array/Tuple of tuples. ('name', type) or ('name', type, default).
+* **get_req** - Required GET parameters. Array/Tuple of tuples. ('name', type).
+* **file_opt** - Optional file parameters. Returns the ApiFile object with helper functions data() and hash() Array/Tuple of names. ('name').
+* **file_req** - Required file parameters. Returns the ApiFile object with helper functions data() and hash() Array/Tuple of names. ('name').
+* **files** - 'name' which recieves an array of Apifile classes. Handy for uploading arrays of unnamed filess.
+* **meta** - 'name' which recieves a CaterpillarMeta object. All of the Cocoon parameters are represented along with an 'args' dictionary which holds all data passed to this endpoint.
 
-Caterpillar only knows how to GET and POST data. Either data is sent through the URL, or data is sent through the BODY POST. What you do with the data is obviously up to you. 
+### @Cocoon Types
 
+* str
+* int
+* float
+* bool - Can take true/false strings or true/false values or ints, 0 !0
+* dict - A dictionary of key value pairs. JSON
+* list - An array of parameters. Can take a string of delenated elements.
 
+# pillar functions
+Pillar functions provide handy success failed responses. If the standard response format isn't flexible enough, you can create your own using util.raw()
 
+```python
+from caterpillar import Cocoon, pillar
+```
 
+## pillar.resp
+A successful response. 'successful' = true is added to the response and then an HttpResponse is generated.
+
+* request - The request variable passed by Django.
+* response - A dict key/value pair.
+
+```python
+return pillar.resp( request, { 'key': 'value' })
+```
+
+## pillar.err
+A fail response. 'successful' = false is added to the response and then an HttpResponse is generated.
+
+* request - The request variable passed by Django.
+* reason - A string "reason" why the error occurred.
+* code="" - An optional error code.
+* extra={} - A dict of any other information that should be passed.
+
+## util.raw
+util.raw provides HttpResponse logic pillar.resp and pillar.err use to communicate with Django.
+
+* objs - String of response.
+* status - Status code
+* content - content_type of response
+* callback=None - Optional JSON-P support
+
+# JSON-P support?
+Yes. Caterpillar provides JSON-P support out of the box by passing a GET variable callback=xxx. If the data is passed as POST or cannot use the name 'callback' to pass the callback name, a custom resp/err function set should be created.
+
+# Common errors
+No one likes bugs in their code, but Caterpillar is a bug and sometimes it encounters other bugs.
+
+## TypeError: xxx() got an unexpected keyword argument 'xxx'
+Caterpillar works by injecting variables directly into functions. If the variable name doesn't exist in the paramaters of the function, you'll see a TypeError.
+
+```python
+@Cocoon(
+    post_req=(
+            ('a', int),
+            ('b', int),
+    )
+)
+def add( request, a ): # TypeError Missing variable 'b'
+    return pillar.resp( request, { "c": a })
+```
+
+There are two possible solutions. Add all variables or add **kwargs at the end of your parameters.
+```python
+# Solution of adding all variables
+@Cocoon(
+    post_req=(
+            ('a', int),
+            ('b', int),
+    )
+)
+def add( request, a, b):
+    return pillar.resp( request, { "c": a + b })
+
+# Solution adding **kwargs
+@Cocoon(
+    post_req=(
+            ('a', int),
+            ('b', int),
+    )
+)
+def add( request, a, **kwargs ):
+    return pillar.resp( request, { "c": a + kwargs['b'] })
+```
+
+### {"successful": false, "reason": "Missing required argument(s): GET[] POST['b'] SESS[] FILE[]", "code": ""}
+If a required parameter is missing, the endpoint will not be called. A message similar to the above will be sent instead. Caterpillar attempts to provide detailed information for any GET / POST / SESS / FILE data that is required and missing.
+
+# Testing
+...
+
+# Contribute
+If you're using Caterpillar and want to help, thank you. There are many ways to get involved.
