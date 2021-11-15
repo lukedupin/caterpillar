@@ -246,6 +246,9 @@ add( None, 4, 3) # Returns { "c": 12 }
 add( None, "cat", "fish") # Returns { "c": "catfish" } # Type checking isn't done when calling directly
 ```
 
+## Where are PUT and DELETE?
+They didn't make the cut. PUT and DELETE don't add any new functionality over update and remove endpoints. PUT/DELETE aren't fundimental to Django, since Caterpillar aims to be as lightweight as possible, this feature is out of scope.
+
 # @Cocoon
 
 Cocoon is a function decorator that defines endpoint arguments and data types. 
@@ -348,7 +351,27 @@ def add( request, a, **kwargs ):
 If a required parameter is missing, the endpoint will not be called. A message similar to the above will be sent instead. Caterpillar attempts to provide detailed information for any GET / POST / SESS / FILE data that is required and missing.
 
 # Testing
-...
+Caterpillar has limited testing support. Please see the contribution section to get involved.
 
 # Contribute
-If you're using Caterpillar and want to help, thank you. There are many ways to get involved.
+If you love Caterpillar as much as we do and want to help, there are lots of ways to get involved.
+
+## Self documenting reports
+
+Caterpiller could use reflections to generated API reports. If you're interested in giving Caterpillar its documentation wings, please contact lukedupin.
+
+## Extended type checking for dict arguments
+
+When passing dict arguments to Cocoon, there needs to be the ability to enforce an expectation of structure.
+
+## Client libraries for all the major clients
+
+Love Angular? Flutter? Vue? Bootstrap? Android? IOS? We want libraries to natively support Caterpillar JSON.
+
+## Website or graphic design?
+
+We'd love to have a real website. If you want to help give Caterpillar have a personality, please contact us.
+
+## Maybe it's something really cool we don't even know about
+
+Do you have ideas for new awesome features? Please contact lukedupin about becoming a contributer.

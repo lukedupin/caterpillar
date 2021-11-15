@@ -1,6 +1,6 @@
 from caterpillar import util
 
-import json
+import json, logging
 
 
 # Json response
@@ -17,8 +17,10 @@ def resp( request, objs={} ):
 
 # Return an error response
 def err( request, reason, code="", extra={} ):
-    print( reason )
+    # Provide logging for errors
+    logging.warning( reason )
 
+    # Add my extra data
     objs = { 'successful': False, 'reason': reason, 'code': code }
     objs.update( extra )
 
