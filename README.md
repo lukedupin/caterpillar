@@ -4,7 +4,7 @@ A light-weight, fast and scalable api solution for Django. Uses a comfy set of f
 
 Don't disregard Caterpillar because its small; It's scrapy to, with built in type conversion, session management, dead simple file handling, self documenting reports and error management. Caterpillar makes writing APIs simple so you can focus on functionality, not CRUD.
 
-# Caterpillar hello world
+# Install Caterpillar
 
 ```bash
 pip3 install caterpillar-api
