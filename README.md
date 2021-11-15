@@ -18,12 +18,10 @@ Inside your django project, create a function with a *@Cocoon* wrapper that defi
 from caterpillar import Cocoon, pillar
 
 
-@Cocoon(
-    post_req=(
+@Cocoon( post_req=(
             ('a', int),
             ('b', int),
-    )
-)
+))
 def add( request, a, b ):
     return pillar.resp( request, { "c": a + b })
 ```
@@ -64,12 +62,10 @@ post_req takes a tuple of tuples. The tuple entries define variable name, python
 
 
 ```python
-@Cocoon(
-    post_req=(
+@Cocoon( post_req=(
             ('name', str),
             ('age', int),
-    )
-)
+))
 def add_user( request, name, age ):
     usr = User.objects.create( name=name, age=age )
     return pillar.resp( request, { id: usr.id })
@@ -158,12 +154,10 @@ Caterpillar also helps you work with session information. Session data can be us
 ```python
 from django.forms import model_to_dict
 
-@Cocoon(
-    post_req=(
+@Cocoon( post_req=(
             ('uid', str),
             ('password', str),
-    ),
-)
+))
 def login( request, uid, password ):
     if (usr := getByUid(User, uid)) is None:
         return pillar.err("Couldn't find user")
@@ -315,12 +309,10 @@ No one likes bugs in their code, but Caterpillar is a bug and sometimes it encou
 Caterpillar works by injecting variables directly into functions. If the variable name doesn't exist in the paramaters of the function, you'll see a TypeError.
 
 ```python
-@Cocoon(
-    post_req=(
+@Cocoon( post_req=(
             ('a', int),
             ('b', int),
-    )
-)
+))
 def add( request, a ): # TypeError Missing variable 'b'
     return pillar.resp( request, { "c": a })
 ```
@@ -328,22 +320,18 @@ def add( request, a ): # TypeError Missing variable 'b'
 There are two possible solutions. Add all variables or add **kwargs at the end of your parameters.
 ```python
 # Solution of adding all variables
-@Cocoon(
-    post_req=(
+@Cocoon( post_req=(
             ('a', int),
             ('b', int),
-    )
-)
+))
 def add( request, a, b):
     return pillar.resp( request, { "c": a + b })
 
 # Solution adding **kwargs
-@Cocoon(
-    post_req=(
+@Cocoon( post_req=(
             ('a', int),
             ('b', int),
-    )
-)
+))
 def add( request, a, **kwargs ):
     return pillar.resp( request, { "c": a + kwargs['b'] })
 ```
