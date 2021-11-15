@@ -2,7 +2,7 @@
 
 A light-weight, fast and scalable api solution for Django. Uses a comfy set of functionality that isn't boilerplatey or opinionated.
 
-Don't disregard Caterpillar because its small; It's scrapy to, with built in type conversion, session management, dead simple file handling, self documenting reports and error management. Caterpillar makes writing APIs simple so you can focus on functionality, not CRUD.
+Don't disregard Caterpillar because it's small; It's scrapy to, with built in type conversion, session management, dead simple file handling, self documenting reports and error management. Caterpillar makes writing APIs simple so you can focus on functionality, not CRUD.
 
 # Install Caterpillar
 
@@ -102,7 +102,7 @@ def modify_user( request, uid, name, age, type ):
 ```
 
 ## Optional POST using kwargs
-post_opt argument checking works fine, but its a little ugly. It also creates a lot of code. The same operation can be done with kwargs.
+post_opt argument checking works fine, but it's a little ugly. It also creates a lot of code. The same operation can be done with kwargs.
 
 ```python
 @Cocoon(
@@ -127,7 +127,7 @@ def modify_user( request, uid, **kwargs ):
 ```
 
 ## Meta data
-A @Coccon can also provide all the meta data as an argument. This is handy because it can further reduce duplicate logic. Take the above example, using meta data.
+@Coccon can also provide meta data as an argument. This is handy because it can further reduce duplicate logic. Take the above example, now using meta data.
 
 ```python
 @Cocoon(
