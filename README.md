@@ -15,14 +15,14 @@ pip3 install caterpillar-api
 Inside your django project, create a function with a *@Cocoon* wrapper that defines your paramaters.
 
 ```python
-from caterpillar import Cocoon, pillar
+from caterpillar_api import Cocoon, monarch
 
 @Cocoon( post_req=(
             ('a', int),
             ('b', int),
 ))
 def add( request, a, b ):
-    return pillar.resp( request, { "c": a + b })
+    return monarch.resp( request, { "c": a + b })
 ```
 
 ### Add your endpoint to Django
@@ -72,7 +72,7 @@ post_req takes a tuple of tuples. The tuple entries define (variable name, pytho
 ))
 def add_user( request, name, age ):
     usr = User.objects.create( name=name, age=age )
-    return pillar.resp( request, { 'id': usr.id })
+    return monarch.resp( request, { 'id': usr.id })
 ```
 
 ## Optional POST arguments
@@ -98,7 +98,7 @@ def modify_user( request, uid, name, age, type ):
     usr.type = type
     usr.save()
     
-    return pillar.resp( request, {})
+    return monarch.resp( request, {})
 ```
 
 ## Optional POST using kwargs
@@ -123,7 +123,7 @@ def modify_user( request, uid, **kwargs ):
             usr.__setattr__( key, kwargs[key] )
     usr.save()
 
-    return pillar.resp( request, {})
+    return monarch.resp( request, {})
 ```
 
 ## Meta data
@@ -149,7 +149,7 @@ def modify_user( request, uid, meta, **kwargs ):
             usr.__setattr__( key, kwargs[key] )
     usr.save()
 
-    return pillar.resp( request, {})
+    return monarch.resp( request, {})
 ```
 
 ## Authenticate user and check login status
@@ -164,14 +164,14 @@ from django.forms import model_to_dict
 ))
 def login( request, uid, password ):
     if (usr := getByUid(User, uid)) is None:
-        return pillar.err( request, "Couldn't find user")
+        return monarch.err( request, "Couldn't find user")
 
     if usr.password != password:
-        return pillar.err( request, "Invalid password")
+        return monarch.err( request, "Invalid password")
 
     # Store the user's info into the session, this effectively logs the user in
     request.session['usr'] = model_to_dict(usr)
-    return pillar.resp( request, {})
+    return monarch.resp( request, {})
 
 
 @Cocoon(
@@ -179,7 +179,7 @@ def login( request, uid, password ):
 )
 def logout( request, usr ):
     del request.session['usr']
-    return pillar.resp( request, {})
+    return monarch.resp( request, {})
 
 
 # sess_req['usr'] will only allow this endpoint to be called by users that are logged in
@@ -188,7 +188,7 @@ def logout( request, usr ):
 )
 def user_details( request, usr ):
     usr = getByUid(User, usr['uid'])
-    return pillar.resp( request, model_to_dict(usr))
+    return monarch.resp( request, model_to_dict(usr))
 ```
 
 If optional session checking is required, you can always use sess_opt
@@ -198,7 +198,7 @@ If optional session checking is required, you can always use sess_opt
     sess_opt=[('usr', dict)]
 )
 def is_online( request, usr ):
-    return pillar.resp( request, { 'online': usr is not None })
+    return monarch.resp( request, { 'online': usr is not None })
 ```
 
 ## GET data from the URL
@@ -211,7 +211,7 @@ The same way POST can have required and optional arguments, GET variables can be
 def get_video( request, usr, video_code ):
     #http://server.com/?video_code=XXX
     print(video_code) # Prints XXX
-    return pillar.resp( request, {'video_info': 'info'})
+    return monarch.resp( request, {'video_info': 'info'})
 ```
 
 ## Read a file
@@ -224,9 +224,9 @@ Caterpillar seamlessly handles file uploads as parameters. Files, like GET/POST,
 )
 def upload_logo( request, usr, logo ):
     if not s3.put_data(logo.data(), usr['uid']):
-        return pillar.err( request, "Couldn't upload to S3")
+        return monarch.err( request, "Couldn't upload to S3")
 
-    return pillar.resp( request, {})
+    return monarch.resp( request, {})
 ```
 
 ## Need to call an endpoint directly?
@@ -240,7 +240,7 @@ Not a problem; Caterpillar will happily get out of your way. Passing None for th
     )
 )
 def add( request, a, b ):
-    return pillar.resp( request, { "c": a + b })
+    return monarch.resp( request, { "c": a + b })
 
 add( None, 4, 3) # Returns { "c": 12 }
 add( None, "cat", "fish") # Returns { "c": "catfish" } # Type checking isn't done when calling directly
@@ -287,24 +287,24 @@ Cocoon is a function decorator that defines endpoint arguments and data types.
 * **files** - Contents of @Cocoon value for this param.
 
 
-# pillar functions
-Pillar functions provide handy success failed responses. If the standard response format isn't flexible enough, you can create your own using util.raw()
+# monarch functions
+Monarch functions provide handy success failed responses. If the standard response format isn't flexible enough, you can create your own using util.raw()
 
 ```python
-from caterpillar import Cocoon, pillar
+from caterpillar_api import Cocoon, monarch
 ```
 
-## pillar.resp
+## monarch.resp
 A successful response. 'successful' = true is added to the response and then an HttpResponse is generated.
 
 * request - The request variable passed by Django.
 * response - A dict key/value pair.
 
 ```python
-return pillar.resp( request, { 'key': 'value' })
+return monarch.resp( request, { 'key': 'value' })
 ```
 
-## pillar.err
+## monarch.err
 A fail response. 'successful' = false is added to the response and then an HttpResponse is generated.
 
 * request - The request variable passed by Django.
@@ -313,13 +313,13 @@ A fail response. 'successful' = false is added to the response and then an HttpR
 * extra={} - A dict of any other information that should be passed.
 
 ```python
-return pillar.err( request, "Invalid access")
-return pillar.err( request, "Invalid access", code="ERR_CODE_A")
-return pillar.err( request, "Invalid access", extra={'info': 'data'})
+return monarch.err( request, "Invalid access")
+return monarch.err( request, "Invalid access", code="ERR_CODE_A")
+return monarch.err( request, "Invalid access", extra={'info': 'data'})
 ```
 
 ## util.raw
-util.raw provides HttpResponse logic pillar.resp and pillar.err use to communicate with Django. This function should only be used in exceptional cases.
+util.raw provides HttpResponse logic monarch.resp and monarch.err use to communicate with Django. This function should only be used in exceptional cases.
 
 * objs - String of response.
 * status - Status code
@@ -351,7 +351,7 @@ Caterpillar works by injecting named variables directly into functions. If the v
             ('b', int),
 ))
 def add( request, a ): # TypeError Missing variable 'b'
-    return pillar.resp( request, { "c": a })
+    return monarch.resp( request, { "c": a })
 ```
 
 There are two possible solutions. Add all variables or add **kwargs at the end of your parameters.
@@ -362,7 +362,7 @@ There are two possible solutions. Add all variables or add **kwargs at the end o
             ('b', int),
 ))
 def add( request, a, b):
-    return pillar.resp( request, { "c": a + b })
+    return monarch.resp( request, { "c": a + b })
 
 # Solution adding **kwargs
 @Cocoon( post_req=(
@@ -370,7 +370,7 @@ def add( request, a, b):
             ('b', int),
 ))
 def add( request, a, **kwargs ):
-    return pillar.resp( request, { "c": a + kwargs['b'] })
+    return monarch.resp( request, { "c": a + kwargs['b'] })
 ```
 
 ### {"successful": false, "reason": "Missing required argument(s): GET[] POST['b'] SESS[] FILE[]", "code": ""}

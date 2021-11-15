@@ -1,4 +1,4 @@
-from caterpillar import pillar, util
+from caterpillar_api import monarch, util
 
 
 # Request args wrapper class
@@ -49,24 +49,24 @@ class Cocoon:
             # Required args
             err = util.proc_args( kwargs, req_args, self.sess_req, request.session, sess_missing )
             if err is not None:
-                return pillar.err( request, err )
+                return monarch.err( request, err )
             err = util.proc_args( kwargs, req_args, self.post_req, request.POST, post_missing )
             if err is not None:
-                return pillar.err( request, err )
+                return monarch.err( request, err )
             err = util.proc_args( kwargs, req_args, self.get_req, request.GET, get_missing )
             if err is not None:
-                return pillar.err( request, err )
+                return monarch.err( request, err )
 
             # Optional args, no missing accumulation
             err = util.proc_args( kwargs, req_args, self.sess_opt, request.session, None )
             if err is not None:
-                return pillar.err( request, err )
+                return monarch.err( request, err )
             err = util.proc_args( kwargs, req_args, self.post_opt, request.POST, None )
             if err is not None:
-                return pillar.err( request, err )
+                return monarch.err( request, err )
             err = util.proc_args( kwargs, req_args, self.get_opt, request.GET, None )
             if err is not None:
-                return pillar.err( request, err )
+                return monarch.err( request, err )
 
             # Files are simple, just check if they exist, the type is always a string filename
             if request.method == 'POST':
@@ -98,7 +98,7 @@ class Cocoon:
 
             # Did we miss any constraints?
             if (len(get_missing) + len(post_missing)) + len(sess_missing) + len(file_missing) > 0:
-                return pillar.err( request, 'Missing required argument(s): GET%s POST%s SESS%s FILE%s' % (str(get_missing), str(post_missing), str(sess_missing), str(file_missing)))
+                return monarch.err( request, 'Missing required argument(s): GET%s POST%s SESS%s FILE%s' % (str(get_missing), str(post_missing), str(sess_missing), str(file_missing)))
 
             # Does the user want meta data?
             if self.meta is not None:
@@ -122,12 +122,12 @@ class Cocoon:
                 if isinstance( self.auth, bool ):
                     if self.auth:
                         if not request.user.is_authenticated():
-                            return pillar.err( request, "Not logged in")
+                            return monarch.err( request, "Not logged in")
 
                 # Custom user authentication, we just just need a true/false
                 elif hasattr( self.auth, '__call__'):
                     if not self.auth( *args, **kwargs ):
-                        return pillar.err( request, "Not logged in")
+                        return monarch.err( request, "Not logged in")
 
             return func( *args, **kwargs)
 

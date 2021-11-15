@@ -6,8 +6,8 @@ def readme():
 
 setup(
     name='caterpillar_api',
-    version='1.45',
-    packages=['caterpillar'],
+    version='1.47',
+    packages=['caterpillar_api'],
     url='https://github.com/lukedupin/caterpillar',
     # I explain this later on
     license='MIT',

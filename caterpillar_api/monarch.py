@@ -1,4 +1,4 @@
-from caterpillar import util
+from caterpillar_api import util
 
 import json, logging
 
