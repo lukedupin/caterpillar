@@ -5,17 +5,20 @@ def readme():
         return f.read()
 
 setup(
-    name='caterpillar-api',
-    version='v1.43',
-    packages=['caterpillar-api'],
+    name='caterpillar_api',
+    version='1.45',
+    packages=['caterpillar'],
     url='https://github.com/lukedupin/caterpillar',
     # I explain this later on
     license='MIT',
     author='Luke Dupin',
     author_email='lukedupin@gmail.com',
     description='🐛 Caterpillar Api, field management for Django without the boiler-plate.',
+    long_description=readme(),
+    long_description_content_type='text/markdown',
     keywords = ['DJANGO', 'API', 'REST', 'JSON', 'JSONP', 'JSON-P'],
     install_requires=['Django'],
+    setup_requires=["wheel"],
     classifiers=[
         'Development Status :: 4 - Beta',
         # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
