@@ -53,6 +53,11 @@ curl -d "a=17&b=35" -X POST http://127.0.0.1:8000/add/; echo
 * Easy to use
 * Unopnionated
 
+# Client libraries
+Caterpillar doesn't leave you hanging. We have an ever growing list of client libraries to speed up your development efforts. Although you don't need a custom client side library, it sure does feel good not writing that code.
+
+* React fetch_js
+* Qt C++/QML interface
 
 # Recipes
 
@@ -290,8 +295,12 @@ A fail response. 'successful' = false is added to the response and then an HttpR
 * code="" - An optional error code.
 * extra={} - A dict of any other information that should be passed.
 
+```python
+return pillar.err( request, "Invalid access")
+```
+
 ## util.raw
-util.raw provides HttpResponse logic pillar.resp and pillar.err use to communicate with Django.
+util.raw provides HttpResponse logic pillar.resp and pillar.err use to communicate with Django. This function should only be used in exceptional cases.
 
 * objs - String of response.
 * status - Status code
