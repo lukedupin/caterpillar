@@ -164,10 +164,10 @@ from django.forms import model_to_dict
 ))
 def login( request, uid, password ):
     if (usr := getByUid(User, uid)) is None:
-        return monarch.err( request, "Couldn't find user")
+        return monarch.fail( request, "Couldn't find user")
 
     if usr.password != password:
-        return monarch.err( request, "Invalid password")
+        return monarch.fail( request, "Invalid password")
 
     # Store the user's info into the session, this effectively logs the user in
     request.session['usr'] = model_to_dict(usr)
@@ -224,7 +224,7 @@ Caterpillar seamlessly handles file uploads as parameters. Files, like GET/POST,
 )
 def upload_logo( request, usr, logo ):
     if not s3.put_data(logo.data(), usr['uid']):
-        return monarch.err( request, "Couldn't upload to S3")
+        return monarch.fail( request, "Couldn't upload to S3")
 
     return monarch.resp( request, {})
 ```
@@ -304,7 +304,7 @@ A successful response. 'successful' = true is added to the response and then an 
 return monarch.resp( request, { 'key': 'value' })
 ```
 
-## monarch.err
+## monarch.fail
 A fail response. 'successful' = false is added to the response and then an HttpResponse is generated.
 
 * request - The request variable passed by Django.
@@ -313,13 +313,13 @@ A fail response. 'successful' = false is added to the response and then an HttpR
 * extra={} - A dict of any other information that should be passed.
 
 ```python
-return monarch.err( request, "Invalid access")
-return monarch.err( request, "Invalid access", code="ERR_CODE_A")
-return monarch.err( request, "Invalid access", extra={'info': 'data'})
+return monarch.fail( request, "Invalid access")
+return monarch.fail( request, "Invalid access", code="ERR_CODE_A")
+return monarch.fail( request, "Invalid access", extra={'info': 'data'})
 ```
 
 ## util.raw
-util.raw provides HttpResponse logic monarch.resp and monarch.err use to communicate with Django. This function should only be used in exceptional cases.
+util.raw provides HttpResponse logic monarch.resp and monarch.fail use to communicate with Django. This function should only be used in exceptional cases.
 
 * objs - String of response.
 * status - Status code

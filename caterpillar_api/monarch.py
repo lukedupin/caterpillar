@@ -16,7 +16,7 @@ def resp( request, objs={} ):
 
 
 # Return an error response
-def err( request, reason, code="", extra={} ):
+def fail( request, reason, code="", extra={} ):
     # Provide logging for errors
     logging.warning( reason )
 
