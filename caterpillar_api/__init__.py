@@ -1,5 +1,7 @@
 from caterpillar_api import monarch, util
 
+import json
+
 
 # Request args wrapper class
 class Cocoon:
@@ -31,8 +33,9 @@ class Cocoon:
             if request is None or 'json_api' in kwargs and not kwargs['json_api']:
                 return func(*args, **kwargs)
 
-            # Uncomment if application/json content-type
-            #request.POST = json.loads( request.body.decode('utf-8'))
+            # If the user didn't use xxx/form-data, we try to decode the data and still work
+            if request.content_type == 'application/json':
+                request.POST = json.loads( request.body.decode('utf-8'))
 
             #print(kwargs)
             #print( request.POST )
