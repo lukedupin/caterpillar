@@ -6,7 +6,7 @@ def readme():
 
 setup(
     name='caterpillar_api',
-    version='1.50',
+    version='1.51',
     packages=['caterpillar_api'],
     url='https://github.com/lukedupin/caterpillar',
     # I explain this later on
@@ -34,5 +34,6 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
 )
