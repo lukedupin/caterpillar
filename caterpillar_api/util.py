@@ -28,7 +28,9 @@ class ApiFile:
 
 
 class CaterpillarMeta:
-    def __init__(self, name, args, sess_req, sess_opt, post_req, post_opt, get_req, get_opt, file_req, file_opt, files ):
+    def __init__(self, name, args, sess_req, sess_opt, post_req, post_opt,
+                 get_req, get_opt, param_req, param_opt, file_req, file_opt,
+                 files ):
         self.name = name
 
         self.args = args
@@ -41,6 +43,9 @@ class CaterpillarMeta:
 
         self.get_req = get_req
         self.get_opt = get_opt
+
+        self.param_req = param_req
+        self.param_opt = param_opt
 
         self.file_req = file_req
         self.file_opt = file_opt
@@ -117,7 +122,7 @@ def convert_data( key, typ, raw, default ):
 
 
 # Internal function which runs the assignment action
-def proc_args( kwargs, req_args, request_args, req_dict, missing ):
+def proc_args( kwargs, req_args, request_args, req_dict_ary, missing ):
     for x in request_args:
         if len(x) < 2:
             return "Invalid json value, must have at least key and type"
@@ -133,9 +138,13 @@ def proc_args( kwargs, req_args, request_args, req_dict, missing ):
             continue
 
         # Parse the key
-        val, err = convert_data( key, type, req_dict[key], default) if key in req_dict else (default, None)
-        if err is not None:
-            return err
+        val, err = (default, None)
+        for req_dict in req_dict_ary:
+            if key in req_dict:
+                val, err = convert_data( key, type, req_dict[key], default)
+                if err is not None:
+                    return err
+                break
 
         # Store the data
         if val is not None:

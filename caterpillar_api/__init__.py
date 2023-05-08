@@ -1,3 +1,5 @@
+from django.http import HttpResponse
+
 from caterpillar_api import monarch, util
 
 import json
@@ -5,7 +7,7 @@ import json
 
 # Request args wrapper class
 class Cocoon:
-    def __init__(self, auth=None, sess_req=[], sess_opt=[], get_req=[], get_opt=[], post_req=[], post_opt=[], file_req=[], file_opt=[], files=None, meta=None ):
+    def __init__(self, auth=None, sess_req=[], sess_opt=[], get_req=[], get_opt=[], post_req=[], post_opt=[], param_req=[], param_opt=[], file_req=[], file_opt=[], files=None, meta=None ):
         def _args( args ):
             return args if isinstance( args, tuple) or isinstance( args, list ) else (args,)
 
@@ -13,11 +15,13 @@ class Cocoon:
         self.sess_req = _args( sess_req )
         self.get_req = _args( get_req )
         self.post_req = _args( post_req )
+        self.param_req = _args( param_req )
         self.file_req = file_req
 
         self.sess_opt = _args( sess_opt )
         self.get_opt = _args( get_opt )
         self.post_opt = _args( post_opt )
+        self.param_opt = _args( param_opt )
         self.file_opt = file_opt
 
         self.files = files
@@ -31,7 +35,18 @@ class Cocoon:
 
             # If we don't have a request, or json_api is False/None just call the function directly
             if request is None or 'json_api' in kwargs and not kwargs['json_api']:
-                return func(*args, **kwargs)
+                ret = func(*args, **kwargs)
+
+                # Handle the user response
+                if isinstance( ret, HttpResponse ):
+                    return ret
+                elif isinstance( ret, dict ):
+                    return monarch.succ( request, ret )
+                elif isinstance( ret, str ):
+                    return monarch.fail( request, ret )
+                else:
+                    raise Exception( "Invalid return type from API function, must be HttpResponse")
+
 
             # If the user didn't use xxx/form-data, we try to decode the data and still work
             if request.content_type == 'application/json':
@@ -45,29 +60,36 @@ class Cocoon:
             req_args = {}
             get_missing = []
             post_missing = []
+            param_missing = []
             sess_missing = []
             file_missing = []
             #print(request.POST)
 
             # Required args
-            err = util.proc_args( kwargs, req_args, self.sess_req, request.session, sess_missing )
+            err = util.proc_args( kwargs, req_args, self.sess_req, (request.session,), sess_missing )
             if err is not None:
                 return monarch.fail( request, err )
-            err = util.proc_args( kwargs, req_args, self.post_req, request.POST, post_missing )
+            err = util.proc_args( kwargs, req_args, self.post_req, (request.POST,), post_missing )
             if err is not None:
                 return monarch.fail( request, err )
-            err = util.proc_args( kwargs, req_args, self.get_req, request.GET, get_missing )
+            err = util.proc_args( kwargs, req_args, self.get_req, (request.GET,), get_missing )
+            if err is not None:
+                return monarch.fail( request, err )
+            err = util.proc_args( kwargs, req_args, self.param_req, (request.POST, request.GET), param_missing )
             if err is not None:
                 return monarch.fail( request, err )
 
             # Optional args, no missing accumulation
-            err = util.proc_args( kwargs, req_args, self.sess_opt, request.session, None )
+            err = util.proc_args( kwargs, req_args, self.sess_opt, (request.session,), None )
             if err is not None:
                 return monarch.fail( request, err )
-            err = util.proc_args( kwargs, req_args, self.post_opt, request.POST, None )
+            err = util.proc_args( kwargs, req_args, self.post_opt, (request.POST,), None )
             if err is not None:
                 return monarch.fail( request, err )
-            err = util.proc_args( kwargs, req_args, self.get_opt, request.GET, None )
+            err = util.proc_args( kwargs, req_args, self.get_opt, (request.GET,), None )
+            if err is not None:
+                return monarch.fail( request, err )
+            err = util.proc_args( kwargs, req_args, self.param_opt, (request.POST, request.GET), None )
             if err is not None:
                 return monarch.fail( request, err )
 
@@ -100,8 +122,8 @@ class Cocoon:
                 file_missing = self.file_req
 
             # Did we miss any constraints?
-            if (len(get_missing) + len(post_missing)) + len(sess_missing) + len(file_missing) > 0:
-                return monarch.fail( request, 'Missing required argument(s): GET%s POST%s SESS%s FILE%s' % (str(get_missing), str(post_missing), str(sess_missing), str(file_missing)))
+            if len(get_missing) + len(post_missing) + len(sess_missing) + len(file_missing) + len(param_missing) > 0:
+                return monarch.fail( request, 'Missing required argument(s): PARAM%s GET%s POST%s SESS%s FILE%s' % (str(param_missing), str(get_missing), str(post_missing), str(sess_missing), str(file_missing)))
 
             # Does the user want meta data?
             if self.meta is not None:
@@ -114,6 +136,8 @@ class Cocoon:
                     self.post_opt,
                     self.get_req,
                     self.get_opt,
+                    self.param_req,
+                    self.param_opt,
                     self.file_req,
                     self.file_opt,
                     self.files,
@@ -132,6 +156,17 @@ class Cocoon:
                     if not self.auth( *args, **kwargs ):
                         return monarch.fail( request, "Not logged in")
 
-            return func( *args, **kwargs)
+            # Call the user function
+            ret = func( *args, **kwargs)
+
+            # Handle the user response
+            if isinstance( ret, HttpResponse ):
+                return ret
+            elif isinstance( ret, dict ):
+                return monarch.succ( request, ret )
+            elif isinstance( ret, str ):
+                return monarch.fail( request, ret )
+            else:
+                raise Exception( "Invalid return type from API function, must be HttpResponse")
 
         return wrapper
