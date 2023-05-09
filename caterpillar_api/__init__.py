@@ -35,18 +35,7 @@ class Cocoon:
 
             # If we don't have a request, or json_api is False/None just call the function directly
             if request is None or 'json_api' in kwargs and not kwargs['json_api']:
-                ret = func(*args, **kwargs)
-
-                # Handle the user response
-                if isinstance( ret, HttpResponse ):
-                    return ret
-                elif isinstance( ret, dict ):
-                    return monarch.succ( request, ret )
-                elif isinstance( ret, str ):
-                    return monarch.fail( request, ret )
-                else:
-                    raise Exception( "Invalid return type from API function, must be HttpResponse")
-
+                return func(*args, **kwargs)
 
             # If the user didn't use xxx/form-data, we try to decode the data and still work
             if request.content_type == 'application/json':
