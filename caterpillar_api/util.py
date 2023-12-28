@@ -140,11 +140,15 @@ def proc_args( kwargs, req_args, request_args, req_dict_ary, missing ):
         # Parse the key
         val, err = (default, None)
         for req_dict in req_dict_ary:
-            if key in req_dict:
-                val, err = convert_data( key, type, req_dict[key], default)
-                if err is not None:
-                    return err
-                break
+            # If the value doesn't exist, or is "none" skip
+            if req_dict.get(key) is None:
+                continue
+
+            # Conver the data, and detect errors
+            val, err = convert_data( key, type, req_dict[key], default)
+            if err is not None:
+                return err
+            break
 
         # Store the data
         if val is not None:
