@@ -12,7 +12,7 @@ setup(
     # I explain this later on
     license='MIT',
     author='Luke Dupin',
-    author_email='orbital.sfear@gmail.com',
+    author_email='lukedupin@gmail.com',
     description='🐛 Caterpillar Api, field management for Django without the boiler-plate.',
     long_description=readme(),
     long_description_content_type='text/markdown',
