@@ -173,7 +173,7 @@ def xint( s, none=0, undefined=None ):
 
     except ValueError:
         # Floating points and trailing letters wont fool me!!!
-        m = re.search('^[-+]?[0-9]+', s)
+        m = re.search(r'^[-+]?[0-9]+', s)
         if m:
             return int(m.group(0))
 
@@ -197,7 +197,7 @@ def xfloat( s, none=0.0, undefined=None ):
 
     except ValueError:
         # trailing letters wont fool me!!!
-        m = re.search('^[-+]?[0-9]*\.?[0-9]+', s )
+        m = re.search(r'^[-+]?[0-9]*\.?[0-9]+', s )
         if m:
             return float(m.group(0))
 
